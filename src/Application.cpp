@@ -1,4 +1,6 @@
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 int main(void)
 {
@@ -13,7 +15,7 @@ int main(void)
     /* Create a full screen mode window and its OpenGL context */
     primary_monitor = glfwGetPrimaryMonitor();
     mode = glfwGetVideoMode(primary_monitor);
-    window = glfwCreateWindow(mode->width, mode->height, "Hello OpenGL", primary_monitor, NULL);
+    window = glfwCreateWindow(1920, 1080, "Hello OpenGL", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -22,6 +24,14 @@ int main(void)
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
+
+    if (glewInit() != GLEW_OK)
+    {
+        glfwTerminate();
+        return -1;
+    }
+
+    std::cout << glGetString(GL_VERSION) << std::endl;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
