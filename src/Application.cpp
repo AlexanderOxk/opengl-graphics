@@ -2,47 +2,70 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-int main(void)
+GLFWwindow *init_app(int width, int height, bool fullscreen = false)
 {
     GLFWwindow *window;
-    GLFWmonitor *primary_monitor;
-    const GLFWvidmode *mode;
-
-    /* Initialize the library */
     if (!glfwInit())
-        return -1;
+        return NULL;
 
-    /* Create a full screen mode window and its OpenGL context */
-    primary_monitor = glfwGetPrimaryMonitor();
-    mode = glfwGetVideoMode(primary_monitor);
-    window = glfwCreateWindow(1920, 1080, "Hello OpenGL", NULL, NULL);
+    if (fullscreen)
+    {
+        GLFWmonitor *primary_monitor;
+        const GLFWvidmode *mode;
+        primary_monitor = glfwGetPrimaryMonitor();
+        mode = glfwGetVideoMode(primary_monitor);
+        window = glfwCreateWindow(mode->width, mode->height, "Hello OpenGL", primary_monitor, NULL);
+    }
+    else
+    {
+        window = glfwCreateWindow(width, height, "Hello OpenGL", NULL, NULL);
+    }
+
     if (!window)
     {
         glfwTerminate();
-        return -1;
+        return NULL;
     }
 
-    /* Make the window's context current */
     glfwMakeContextCurrent(window);
-
     if (glewInit() != GLEW_OK)
     {
         glfwTerminate();
-        return -1;
+        return NULL;
     }
 
     std::cout << glGetString(GL_VERSION) << std::endl;
+    return window;
+}
 
-    /* Loop until the user closes the window */
+int main(void)
+{
+    GLFWwindow *window;
+    window = init_app(1920, 1080);
+
+    float positions[6] = {
+        -0.5f,
+        -0.5f,
+        0.0f,
+        0.5f,
+        0.5f,
+        -0.5f,
+    };
+
+    unsigned int buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
-        glBegin(GL_TRIANGLES);
-        glVertex2f(-0.5f, -0.5f);
-        glVertex2f(0.0f, 0.5f);
-        glVertex2f(0.5f, -0.5f);
-        glEnd();
+
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
