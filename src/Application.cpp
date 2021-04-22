@@ -1,35 +1,29 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 #include <iostream>
 
-GLFWwindow *init_app(int width, int height, bool fullscreen = false)
-{
+GLFWwindow *init_app(int width, int height, bool fullscreen = false) {
     GLFWwindow *window;
-    if (!glfwInit())
-        return NULL;
+    if (!glfwInit()) return NULL;
 
-    if (fullscreen)
-    {
+    if (fullscreen) {
         GLFWmonitor *primary_monitor;
         const GLFWvidmode *mode;
         primary_monitor = glfwGetPrimaryMonitor();
         mode = glfwGetVideoMode(primary_monitor);
         window = glfwCreateWindow(mode->width, mode->height, "Hello OpenGL", primary_monitor, NULL);
-    }
-    else
-    {
+    } else {
         window = glfwCreateWindow(width, height, "Hello OpenGL", NULL, NULL);
     }
 
-    if (!window)
-    {
+    if (!window) {
         glfwTerminate();
         return NULL;
     }
 
     glfwMakeContextCurrent(window);
-    if (glewInit() != GLEW_OK)
-    {
+    if (glewInit() != GLEW_OK) {
         glfwTerminate();
         return NULL;
     }
@@ -38,8 +32,7 @@ GLFWwindow *init_app(int width, int height, bool fullscreen = false)
     return window;
 }
 
-static unsigned int CompileShader(unsigned int type, const std::string &source)
-{
+static unsigned int CompileShader(unsigned int type, const std::string &source) {
     unsigned int id = glCreateShader(type);
     const char *src = source.c_str();
     glShaderSource(id, 1, &src, nullptr);
@@ -47,11 +40,10 @@ static unsigned int CompileShader(unsigned int type, const std::string &source)
 
     int result;
     glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-    if (result == GL_FALSE)
-    {
+    if (result == GL_FALSE) {
         int length;
         glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        char message[length]; //char* message = (char*)alloca(length * sizeof(char));
+        char message[length];  // char* message = (char*)alloca(length * sizeof(char));
         glGetShaderInfoLog(id, length, &length, message);
         std::cout << "Failed to compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << std::endl;
         std::cout << message << std::endl;
@@ -62,8 +54,7 @@ static unsigned int CompileShader(unsigned int type, const std::string &source)
     return id;
 }
 
-static unsigned int CreateShader(const std::string &vertexShader, const std::string &fragmentShader)
-{
+static unsigned int CreateShader(const std::string &vertexShader, const std::string &fragmentShader) {
     unsigned int program = glCreateProgram();
     unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
     unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
@@ -79,18 +70,12 @@ static unsigned int CreateShader(const std::string &vertexShader, const std::str
     return program;
 }
 
-int main(void)
-{
+int main(void) {
     GLFWwindow *window;
     window = init_app(1920, 1080);
 
     float positions[6] = {
-        -0.1f,
-        -0.1f,
-        0.0f,
-        0.1f,
-        0.1f,
-        -0.1f,
+        -0.1f, -0.1f, 0.0f, 0.1f, 0.1f, -0.1f,
     };
 
     unsigned int buffer;
@@ -124,8 +109,7 @@ int main(void)
     unsigned int shader = CreateShader(vertexShader, fragmentShader);
     glUseProgram(shader);
 
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
