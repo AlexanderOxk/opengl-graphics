@@ -1,10 +1,15 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
+
+#include "IndexBuffer.hpp"
+#include "Renderer.hpp"
+#include "VertexBuffer.hpp"
 
 struct ShaderProgramSource {
     std::string VertexSource;
@@ -21,7 +26,6 @@ static ShaderProgramSource ParseShader(const std::string &filepath) {
     ShaderType type = ShaderType::NONE;
 
     while (getline(stream, line)) {
-        std::cout << line << std::endl;
         if (line.find("#shader") != std::string::npos) {
             if (line.find("vertex") != std::string::npos) {
                 type = ShaderType::VERTEX;
@@ -57,6 +61,7 @@ GLFWwindow *init_app(int width, int height, bool fullscreen = false) {
     }
 
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
     if (glewInit() != GLEW_OK) {
         glfwTerminate();
         return NULL;
@@ -108,32 +113,48 @@ int main(void) {
     GLFWwindow *window;
     window = init_app(1920, 1080);
 
-    float positions[6] = {
-        -0.1f, -0.1f, 0.0f, 0.1f, 0.1f, -0.1f,
-    };
+    float positions[] = {-0.1f, -0.1f, 0.1f, -0.1f, 0.1f, 0.1f, -0.1f, 0.1f};
+    unsigned int indices[] = {0, 1, 2, 2, 3, 0};
 
-    unsigned int buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    VertexBuffer vb(positions, 4 * 2 * sizeof(float));
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 
-    ShaderProgramSource source = ParseShader("../res/shaders/Basic.glsl");
+    IndexBuffer ib(indices, 6);
 
-    std::cout << "source:" << std::endl;
-    std::cout << source.VertexSource << std::endl;
-    std::cout << source.FragmentSource << std::endl;
+    ShaderProgramSource source = ParseShader("../res/shaders/Basic.glsl");
 
     unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
     glUseProgram(shader);
+
+    int location = glGetUniformLocation(shader, "u_Color");
+    assert(location != -1);
+    glUniform4f(location, 0.1f, 0.3f, 0.5f, 1.0f);
+    float r = 0.0f;
+    float increment = 0.05f;
 
     while (!glfwWindowShouldClose(window)) {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glUseProgram(shader);
+        glUniform4f(location, r, 0.3f, 0.5f, 1.0f);
+        glBindVertexArray(vao);
+        ib.Bind();
+
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+
+        if (r > 1.0f)
+            increment = -0.05f;
+        else if (r < 0.0f)
+            increment = 0.05f;
+
+        r += increment;
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

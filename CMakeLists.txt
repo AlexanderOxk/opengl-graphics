@@ -13,7 +13,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++17")
 file(GLOB src_files "${CMAKE_SOURCE_DIR}/src/*.cpp")
 file(GLOB header_files "${CMAKE_SOURCE_DIR}/include/*.hpp")
 
-include_directories(include)
+include_directories("${CMAKE_SOURCE_DIR}/include")
 
 add_executable(app ${src_files} ${header_files})
 
