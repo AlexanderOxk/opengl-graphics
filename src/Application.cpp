@@ -51,6 +51,7 @@ GLFWwindow *init_app(int width, int height, bool fullscreen = false) {
     }
 
     if (!window) {
+        std::cout << "Failed to create window!\n";
         glfwTerminate();
         return NULL;
     }
