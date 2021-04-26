@@ -120,7 +120,7 @@ int main(void) {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 
-    ShaderProgramSource source = ParseShader("../res/shaders/Basic.shader");
+    ShaderProgramSource source = ParseShader("../res/shaders/Basic.glsl");
 
     std::cout << "source:" << std::endl;
     std::cout << source.VertexSource << std::endl;
